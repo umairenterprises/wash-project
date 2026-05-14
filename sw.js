@@ -1,78 +1,74 @@
-// Wash Plant Management System — Service Worker v7
-const CACHE_NAME = 'washplant-v7';
+// Wash Plant Management System — Service Worker v7.1
+const CACHE_NAME = 'washplant-v7.1';
 
-// Core assets to cache for offline use
 const CORE_ASSETS = [
-  '/',
-  '/index.html',
+  '/wash-project/',
+  '/wash-project/index.html',
+  '/wash-project/manifest.json',
   'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js'
 ];
 
-// ===== INSTALL =====
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      // Cache core assets, ignore failures for external CDN
       return Promise.allSettled(
-        CORE_ASSETS.map(url => cache.add(url).catch(() => {}))
+        CORE_ASSETS.map(url =>
+          cache.add(url).catch(err => console.log('Cache skip:', url, err))
+        )
       );
     })
   );
   self.skipWaiting();
 });
 
-// ===== ACTIVATE =====
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
       )
     )
   );
   self.clients.claim();
 });
 
-// ===== FETCH =====
 self.addEventListener('fetch', event => {
   const url = event.request.url;
 
-  // Let Firebase requests go through always (never cache)
+  // Firebase — kabhi cache mat karo
   if (
-    url.includes('firebase') ||
-    url.includes('googleapis.com/identitytoolkit') ||
     url.includes('firebaseio.com') ||
-    url.includes('firebaseapp.com')
+    url.includes('firebaseapp.com') ||
+    url.includes('firebase.googleapis.com') ||
+    url.includes('identitytoolkit') ||
+    url.includes('gstatic.com/firebasejs')
   ) {
-    return; // bypass — fetch normally
+    return;
   }
 
-  // Network first for HTML (always get latest app)
-  if (event.request.mode === 'navigate') {
+  // Main app — Network first, offline mein cache se
+  if (url.includes('/wash-project/') || url.includes('index.html') || url.includes('manifest.json')) {
     event.respondWith(
       fetch(event.request)
         .then(response => {
-          // Cache the fresh page
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
           return response;
         })
-        .catch(() => caches.match('/index.html') || caches.match('/'))
+        .catch(() =>
+          caches.match(event.request) ||
+          caches.match('/wash-project/index.html') ||
+          caches.match('/wash-project/')
+        )
     );
     return;
   }
 
-  // Cache first for fonts and CDN libraries
-  if (
-    url.includes('fonts.googleapis') ||
-    url.includes('fonts.gstatic') ||
-    url.includes('cdnjs.cloudflare')
-  ) {
+  // CDN fonts & libraries — Cache first
+  if (url.includes('fonts.googleapis') || url.includes('fonts.gstatic') || url.includes('cdnjs.cloudflare')) {
     event.respondWith(
       caches.match(event.request).then(cached => {
         if (cached) return cached;
@@ -80,13 +76,13 @@ self.addEventListener('fetch', event => {
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
           return response;
-        });
+        }).catch(() => cached);
       })
     );
     return;
   }
 
-  // Default: network with cache fallback
+  // Default
   event.respondWith(
     fetch(event.request).catch(() => caches.match(event.request))
   );
