@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wash Plant Management System v6.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Wash Plant Management System v7.0</title>
+<meta name="theme-color" content="#1a3a5c">
+<meta name="description" content="Wash Plant Management System — Firebase Real-time Sync">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="WashPlant">
+<link rel="manifest" href="manifest.json">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
@@ -11,7 +17,6 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, push, remove, update, onValue, off } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyC5Owha7exLEQVkxNbkvPkD_Ra1n-COJ80",
   authDomain: "wash-project-d54b3.firebaseapp.com",
@@ -21,19 +26,21 @@ const firebaseConfig = {
   messagingSenderId: "548701699399",
   appId: "1:548701699399:web:7d1cde5f06803fd776e062"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
-// Expose Firebase functions to global scope for non-module JS
 window._FB = { db, ref, set, get, push, remove, update, onValue, off };
 window._FB_READY = true;
 window.dispatchEvent(new Event('fb-ready'));
 </script>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#f5f4f0;--sf:#fff;--bd:#e2e0d8;--tx:#1a1917;--bl:#1a3a5c;--gn:#2d7a3a;--rd:#a32d2d;--or:#ea580c;--sb:60px;--sb-open:240px;--fs:15px;--fs-sm:13px;--fs-lg:17px}
+:root{
+  --bg:#f5f4f0;--sf:#fff;--bd:#e2e0d8;--tx:#1a1917;--bl:#1a3a5c;--gn:#2d7a3a;--rd:#a32d2d;--or:#ea580c;
+  --sb:60px;--sb-open:240px;--fs:15px;--fs-sm:13px;--fs-lg:17px;
+  --mob-nav:60px;
+}
 body[data-theme="dark"]{--bg:#0f1923;--sf:#1a2535;--bd:#2a3a4a;--tx:#e8edf2;--bl:#3b82f6;--gn:#22c55e;--rd:#ef4444;--or:#f97316}
 body[data-theme="green"]{--bg:#f0f7f0;--sf:#fff;--bd:#c8e6c9;--tx:#1b3a1b;--bl:#2e7d32;--gn:#1b5e20;--rd:#b71c1c;--or:#e65100}
 body[data-theme="navy"]{--bg:#eef2f7;--sf:#fff;--bd:#d0d9e8;--tx:#1a2535;--bl:#1e3a5f;--gn:#1b6b3a;--rd:#9b1c1c;--or:#c2410c}
@@ -50,14 +57,15 @@ body[data-fontsize="xl"]{--fs:19px;--fs-sm:17px;--fs-lg:21px}
 .lsub{text-align:center;font-size:13px;color:#9e9b93;margin-bottom:24px}
 .lfr{margin-bottom:14px}
 .lfr label{display:block;font-size:var(--fs-sm);color:#6b6860;margin-bottom:5px;font-weight:600}
-.lfr input{width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--bd);font-size:var(--fs);outline:none;background:var(--sf);color:var(--tx);font-family:'DM Sans',sans-serif}
+.lfr input{width:100%;padding:12px 14px;border-radius:8px;border:1px solid var(--bd);font-size:var(--fs);outline:none;background:var(--sf);color:var(--tx);font-family:'DM Sans',sans-serif}
 .lfr input:focus{border-color:var(--bl)}
 .lerr{background:#fcebeb;color:#791f1f;font-size:13px;padding:9px 13px;border-radius:8px;margin-bottom:12px;display:none}
 
 /* BUTTONS */
 .btn{padding:9px 16px;border-radius:8px;border:1px solid var(--bd);background:var(--sf);cursor:pointer;font-size:var(--fs);font-weight:500;transition:all.15s;color:var(--tx);font-family:'DM Sans',sans-serif}
 .btn:hover{opacity:.82}
-.btnp{background:var(--bl);color:#fff;border-color:var(--bl);width:100%;padding:12px;font-size:var(--fs);margin-top:4px}
+.btn:active{transform:scale(0.97)}
+.btnp{background:var(--bl);color:#fff;border-color:var(--bl);width:100%;padding:14px;font-size:var(--fs);margin-top:4px}
 .btnsm{padding:6px 12px;font-size:var(--fs-sm)}
 .btng{background:var(--gn);color:#fff;border-color:var(--gn)}
 .btnr{background:var(--rd);color:#fff;border-color:var(--rd)}
@@ -69,7 +77,7 @@ body[data-fontsize="xl"]{--fs:19px;--fs-sm:17px;--fs-lg:21px}
 .app{display:none;min-height:100vh}
 .app.open{display:flex}
 
-/* SIDEBAR */
+/* ======================== DESKTOP SIDEBAR ======================== */
 .sb{width:var(--sb);background:var(--sf);border-right:1px solid var(--bd);position:fixed;top:0;left:0;bottom:0;z-index:50;transition:width.25s;overflow:hidden;display:flex;flex-direction:column}
 .sb:hover{width:var(--sb-open);box-shadow:2px 0 16px rgba(0,0,0,.12)}
 .sbh{padding:13px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;white-space:nowrap;flex-shrink:0}
@@ -94,7 +102,7 @@ body[data-fontsize="xl"]{--fs:19px;--fs-sm:17px;--fs-lg:21px}
 .unm{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--tx)}
 .url2{font-size:11px;color:#9e9b93}
 
-/* MAIN */
+/* ======================== MAIN ======================== */
 .mw{margin-left:var(--sb);flex:1;min-height:100vh;display:flex;flex-direction:column}
 .topbar{background:var(--sf);border-bottom:1px solid var(--bd);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;gap:10px}
 .ptitle{font-size:var(--fs-lg);font-weight:600;color:var(--tx);white-space:nowrap}
@@ -103,13 +111,10 @@ body[data-fontsize="xl"]{--fs:19px;--fs-sm:17px;--fs-lg:21px}
 .cbadge.online{background:#eaf3de;color:var(--gn)}
 .cbadge.offline{background:#fcebeb;color:var(--rd)}
 .cdot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
-
-/* TOPBAR QUICK BUTTONS */
 .qbtn{padding:5px 10px;border-radius:6px;border:1px solid var(--bd);background:var(--sf);cursor:pointer;font-size:12px;font-weight:600;color:var(--tx);transition:all.15s}
 .qbtn:hover{background:var(--bg)}
-.qbtn.active{border-color:var(--bl);background:var(--bl);color:#fff}
 
-/* QUICK PANEL (theme/font) */
+/* QUICK PANEL */
 .qpanel{position:absolute;top:54px;right:16px;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.15);min-width:260px;display:none}
 .qpanel.open{display:block}
 .qp-title{font-size:11px;color:#9e9b93;text-transform:uppercase;font-weight:700;margin-bottom:8px;letter-spacing:.4px}
@@ -144,7 +149,6 @@ body[data-fontsize="xl"]{--fs:19px;--fs-sm:17px;--fs-lg:21px}
 .fsec-body{padding:14px;background:var(--sf)}
 .fsec-body.collapsed{display:none}
 .collapsed .toggle-ico{transform:rotate(-90deg)}
-
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
 .fg4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
@@ -193,9 +197,22 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
 .litem{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--sf);border-radius:6px;margin-bottom:4px;font-size:13px;border:1px solid var(--bd)}
 .ladd{display:flex;gap:5px}
 .ladd input{flex:1;padding:5px 9px;border-radius:6px;border:1px solid var(--bd);font-size:13px;background:var(--sf);color:var(--tx);font-family:'DM Sans',sans-serif}
-.user-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px;border:1px solid var(--bd)}
-.user-info{font-size:var(--fs-sm)}
-.user-pass{font-family:monospace;font-size:13px;color:var(--bl);font-weight:600}
+
+/* USER MANAGEMENT */
+.user-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px;border:1px solid var(--bd);gap:8px;flex-wrap:wrap}
+.user-info{font-size:var(--fs-sm);flex:1;min-width:0}
+.user-pass{font-family:monospace;font-size:12px;color:#9e9b93;margin-top:2px}
+.user-perms{font-size:11px;color:var(--bl);margin-top:3px;padding:3px 8px;background:rgba(26,90,140,.08);border-radius:4px;display:inline-block}
+.perm-panel{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-top:8px}
+.perm-panel h6{font-size:11px;font-weight:700;color:var(--bl);text-transform:uppercase;margin-bottom:8px;letter-spacing:.3px}
+.perm-district{margin-bottom:10px;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.perm-dist-header{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--sf);cursor:pointer;font-weight:600;font-size:13px}
+.perm-dist-header:hover{background:var(--bg)}
+.perm-cities{padding:6px 10px 10px 28px;background:var(--bg);border-top:1px solid var(--bd)}
+.perm-city-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.perm-plants{padding:4px 0 4px 20px}
+.perm-plant-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:12px}
+.pchk{width:15px;height:15px;cursor:pointer;accent-color:var(--bl)}
 
 /* MODAL */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;padding:14px}
@@ -220,22 +237,6 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
 /* PDF FILTER MODAL */
 .pfilter{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 
-/* MOBILE */
-@media(max-width:768px){
-  .sb{width:0;z-index:60}
-  .sb.open{width:var(--sb-open)}
-  .sb.open .sbtitle,.sb.open .sbsec,.sb.open .nbtxt,.sb.open .udt{opacity:1}
-  .mw{margin-left:0}
-  .fg2,.fg3,.fg4{grid-template-columns:1fr 1fr}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .pg{padding:10px}
-  #hambtn{display:flex!important}
-  .dcharts{grid-template-columns:1fr}
-  .dgrid{grid-template-columns:1fr}
-  .pfilter{grid-template-columns:1fr}
-}
-@media(max-width:420px){.fg2,.fg3,.fg4{grid-template-columns:1fr}}
-
 /* GOOD WORK POPUP */
 .gw-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.7);z-index:9999;background:var(--sf);border:2px solid var(--gn);border-radius:20px;padding:32px 44px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.25);opacity:0;transition:all .25s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
 .gw-popup.show{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
@@ -253,6 +254,89 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
 .sync-toast.err{border-color:var(--rd);color:var(--rd)}
 .uname-edit{display:flex;gap:6px;align-items:center;margin-top:8px}
 .uname-edit input{padding:6px 10px;border-radius:7px;border:1px solid var(--bd);font-size:var(--fs);background:var(--sf);color:var(--tx);font-family:'DM Sans',sans-serif;flex:1}
+
+/* INSTALL BANNER */
+.install-banner{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bl);color:#fff;padding:12px 20px;border-radius:12px;display:none;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.25);z-index:8000;white-space:nowrap;font-size:14px;font-weight:600}
+.install-banner.show{display:flex}
+
+/* ======================== MOBILE OVERHAUL ======================== */
+@media(max-width:768px){
+  /* Hide desktop sidebar */
+  .sb{display:none!important}
+  .mob-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:55}
+
+  /* Main takes full width, add bottom padding for nav */
+  .mw{margin-left:0!important;padding-bottom:var(--mob-nav)}
+
+  /* Topbar: show hamburger, hide customize */
+  #hambtn{display:flex!important}
+  .qbtn{display:none}
+  .cbadge{display:none}
+
+  /* SINGLE COLUMN layouts */
+  .fg2,.fg3,.fg4{grid-template-columns:1fr!important}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .pg{padding:12px 10px}
+  .dcharts{grid-template-columns:1fr}
+  .dgrid{grid-template-columns:1fr}
+  .pfilter{grid-template-columns:1fr}
+
+  /* Bigger, touch-friendly form fields */
+  .fr input,.fr select,.fr textarea{padding:12px 14px;font-size:16px!important;border-radius:10px}
+  .fr label{font-size:12px;margin-bottom:6px}
+
+  /* Bigger buttons */
+  .btn{padding:11px 18px;font-size:15px}
+  .btnsm{padding:9px 14px;font-size:14px}
+  .factions{gap:10px}
+  .factions .btn{flex:1;text-align:center;min-height:44px}
+
+  /* Mobile overlay sidebar */
+  .mob-sidebar{position:fixed;top:0;left:-260px;bottom:0;width:250px;background:var(--sf);border-right:1px solid var(--bd);z-index:60;transition:left .25s;display:flex;flex-direction:column;overflow-y:auto}
+  .mob-sidebar.open{left:0;box-shadow:4px 0 20px rgba(0,0,0,.2)}
+  .mob-sb-header{padding:16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px}
+  .mob-sb-ico{width:38px;height:38px;background:var(--bl);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0}
+  .mob-sb-title{font-size:15px;font-weight:700;color:var(--tx)}
+  .mob-sb-sub{font-size:11px;color:#9e9b93}
+  .mob-sb-nav{padding:10px 8px;flex:1}
+  .mob-nb{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:none;background:none;color:#6b6860;cursor:pointer;font-size:15px;font-weight:500;transition:all.15s;text-align:left;margin-bottom:4px}
+  .mob-nb:hover{background:var(--bg);color:var(--tx)}
+  .mob-nb.active{background:var(--bl);color:#fff;font-weight:600}
+  .mob-nb svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+  .mob-sec{font-size:10px;color:#9e9b93;text-transform:uppercase;font-weight:700;padding:10px 14px 4px;letter-spacing:.5px}
+  .mob-sb-foot{padding:12px 8px;border-top:1px solid var(--bd)}
+  .mob-user-chip{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--bg)}
+  .mob-uav{width:36px;height:36px;border-radius:50%;background:var(--bl);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;flex-shrink:0}
+
+  /* BOTTOM NAVIGATION BAR */
+  .mob-bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--sf);border-top:1px solid var(--bd);display:flex;align-items:stretch;z-index:50;height:var(--mob-nav);box-shadow:0 -2px 12px rgba(0,0,0,.1)}
+  .mob-bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;color:#9e9b93;cursor:pointer;padding:6px 2px;transition:all.15s;position:relative}
+  .mob-bnav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .mob-bnav-btn span{font-size:10px;font-weight:600}
+  .mob-bnav-btn.active{color:var(--bl)}
+  .mob-bnav-btn.active::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--bl);border-radius:0 0 2px 2px}
+  .mob-bnav-add{background:var(--bl)!important;color:#fff!important;border-radius:14px;margin:8px 4px;flex:0 0 52px;height:44px;box-shadow:0 3px 10px rgba(26,58,92,.4)}
+  .mob-bnav-add::before{display:none!important}
+
+  /* Sync toast moves up for bottom nav */
+  .sync-toast{bottom:72px}
+  .install-banner{bottom:72px}
+
+  /* Table on mobile */
+  table{min-width:900px}
+
+  /* User management */
+  .user-row{flex-direction:column}
+
+  .gw-popup{width:calc(100% - 32px);padding:24px 20px}
+}
+
+/* DESKTOP ONLY: hide mobile elements */
+@media(min-width:769px){
+  .mob-bottom-nav{display:none!important}
+  .mob-sidebar{display:none!important}
+  .mob-ov{display:none!important}
+}
 </style>
 </head>
 <body data-theme="light" data-fontsize="md">
@@ -261,7 +345,7 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
 <div id="LP" class="lw">
   <div class="lc">
     <h2>💧 Wash Plant</h2>
-    <p class="lsub">Management System v6.0 — Firebase</p>
+    <p class="lsub">Management System v7.0 — Firebase</p>
     <div id="sync-indicator" style="display:none;text-align:center;font-size:12px;color:#9e9b93;margin-bottom:8px;padding:6px;background:var(--bg);border-radius:6px"><span class="spin" style="border-top-color:var(--bl);border-color:rgba(0,0,0,.15)"></span>Connecting to Firebase...</div>
     <div id="lerr" class="lerr"></div>
     <div class="lfr"><label>Username</label><input type="text" id="lu" placeholder="Enter username" autocomplete="off"></div>
@@ -270,11 +354,58 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
   </div>
 </div>
 
+<!-- MOBILE OVERLAY -->
+<div class="mob-ov" id="mob-ov" onclick="closeMobSB()"></div>
+
+<!-- MOBILE SIDEBAR -->
+<div class="mob-sidebar" id="mob-sidebar">
+  <div class="mob-sb-header">
+    <div class="mob-sb-ico">💧</div>
+    <div>
+      <div class="mob-sb-title">Wash Plant</div>
+      <div class="mob-sb-sub">v7.0</div>
+    </div>
+  </div>
+  <div class="mob-sb-nav">
+    <div class="mob-sec">Menu</div>
+    <button class="mob-nb active" id="mob-nb-dash" onclick="goPg('dash',this,true)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard
+    </button>
+    <button class="mob-nb" id="mob-nb-new" onclick="goPg('new',this,true)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add Record
+    </button>
+    <button class="mob-nb" id="mob-nb-view" onclick="goPg('view',this,true)">
+      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>View Records
+    </button>
+    <div class="mob-sec admin-only" id="mob-admin-sec">Admin</div>
+    <button class="mob-nb admin-only" id="mob-nb-set" onclick="goPg('set',this,true)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>Settings
+    </button>
+    <button class="mob-nb admin-only" id="mob-nb-users" onclick="goPg('users',this,true)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Users & Permissions
+    </button>
+    <div class="mob-sec">Account</div>
+    <button class="mob-nb" onclick="goPg('profile',this,true)">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile
+    </button>
+    <button class="mob-nb" onclick="doLogout()">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout
+    </button>
+  </div>
+  <div class="mob-sb-foot">
+    <div class="mob-user-chip" onclick="goPg('profile',null,true)">
+      <div class="mob-uav" id="mob-uav">A</div>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:var(--tx)" id="mob-unm">Admin</div>
+        <div style="font-size:11px;color:#9e9b93" id="mob-urole">Administrator</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- APP -->
 <div class="app" id="AP">
-  <div id="mob-ov" onclick="closeSB()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:55"></div>
-
-  <!-- SIDEBAR -->
+  <!-- DESKTOP SIDEBAR -->
   <div class="sb" id="SB">
     <div class="sbh">
       <div class="sbico">💧</div>
@@ -291,13 +422,17 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
         <span class="nbtxt">Add Record</span>
       </button>
       <button class="nb" id="nb-view" onclick="goPg('view',this)">
-        <span class="nbico"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span>
+        <span class="nbico"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg></span>
         <span class="nbtxt">View Records</span>
       </button>
-      <div class="sbsec" id="admin-sec">Admin</div>
+      <div class="sbsec admin-only">Admin</div>
       <button class="nb admin-only" id="nb-set" onclick="goPg('set',this)">
         <span class="nbico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></span>
         <span class="nbtxt">Settings</span>
+      </button>
+      <button class="nb admin-only" id="nb-users" onclick="goPg('users',this)">
+        <span class="nbico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>
+        <span class="nbtxt">Users & Perms</span>
       </button>
       <div class="sbsec">Account</div>
       <button class="nb" onclick="goPg('profile',this)">
@@ -321,7 +456,7 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
   <div class="mw">
     <div class="topbar">
       <div style="display:flex;align-items:center;gap:10px">
-        <button id="hambtn" class="btn btnsm" onclick="toggleSB()" style="display:none;padding:6px 10px">☰</button>
+        <button id="hambtn" class="btn btnsm" onclick="toggleMobSB()" style="display:none;padding:7px 11px;font-size:18px;line-height:1">☰</button>
         <span class="ptitle" id="ptitle">Dashboard</span>
       </div>
       <div class="tbr">
@@ -385,9 +520,9 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
           <div class="fsec-body">
             <div class="fg4">
               <div class="fr"><label>Record ID</label><input type="text" id="uid" readonly style="background:var(--bg)"></div>
-              <div class="fr"><label>District</label><select id="district" onchange="updateCityOptions();genID()"></select></div>
-              <div class="fr"><label>City</label><select id="city" onchange="genID()"></select></div>
-              <div class="fr"><label>Plant Name</label><select id="plant"></select></div>
+              <div class="fr"><label>District <span class="req">*</span></label><select id="district" onchange="updateCityOptions();genID()"></select></div>
+              <div class="fr"><label>City <span class="req">*</span></label><select id="city" onchange="genID()"></select></div>
+              <div class="fr"><label>Plant Name <span class="req">*</span></label><select id="plant"></select></div>
             </div>
             <div class="fg3">
               <div class="fr"><label>Date</label><input type="date" id="date" onchange="genID()"></div>
@@ -404,33 +539,35 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
           </div>
           <div class="fsec-body">
             <div class="fg3">
-              <div class="fr"><label>Consume Water (Rs) <span class="req">*</span></label><input type="number" id="cwater" placeholder="Required" oninput="calcBal()"></div>
-              <div class="fr"><label>Free Water (Rs) <span class="req">*</span></label><input type="number" id="fwater" placeholder="Required" oninput="calcBal()"></div>
-              <div class="fr"><label>Daily Expense (Rs)</label><input type="number" id="dexp" placeholder="0" oninput="calcBal()"></div>
+              <div class="fr"><label>Consume Water (Rs) <span class="req">*</span></label><input type="number" id="cwater" placeholder="Required" oninput="calcBal()" inputmode="decimal"></div>
+              <div class="fr"><label>Free Water (Rs) <span class="req">*</span></label><input type="number" id="fwater" placeholder="Required" oninput="calcBal()" inputmode="decimal"></div>
+              <div class="fr"><label>Daily Expense (Rs)</label><input type="number" id="dexp" placeholder="0" oninput="calcBal()" inputmode="decimal"></div>
             </div>
             <div class="fg2">
-              <div class="fr"><label>Other Expense (Rs)</label><input type="number" id="oexp" placeholder="0" oninput="calcBal()"></div>
+              <div class="fr"><label>Other Expense (Rs)</label><input type="number" id="oexp" placeholder="0" oninput="calcBal()" inputmode="decimal"></div>
               <div class="fr"><label>Other Expense Detail</label><input type="text" id="oexpd" placeholder="Details..."></div>
             </div>
           </div>
         </div>
         <div class="fsec" style="margin-top:10px">
-          <div class="fsec-title collapsed" onclick="toggleSec(this)">
+          <div class="fsec-title" onclick="toggleSec(this)">
             <svg width="14" height="14" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Additional Details <span class="toggle-ico" style="transform:rotate(-90deg)">▼</span>
+            Bills & Rent <span class="toggle-ico">▼</span>
           </div>
-          <div class="fsec-body collapsed">
-            <div class="fg3">
-              <div class="fr"><label>Electricity Bill (Rs)</label><input type="number" id="ebill" placeholder="0" oninput="calcBal()"></div>
-              <div class="fr"><label>Plant Rent (Rs)</label><input type="number" id="prent" placeholder="0" oninput="calcBal()"></div>
+          <div class="fsec-body">
+            <div class="fg2">
+              <div class="fr"><label>Electricity Bill (Rs)</label><input type="number" id="ebill" placeholder="0" oninput="calcBal()" inputmode="decimal"></div>
+              <div class="fr"><label>Plant Rent (Rs)</label><input type="number" id="prent" placeholder="0" oninput="calcBal()" inputmode="decimal"></div>
+            </div>
+            <div class="fr frfull"><label>Note</label><textarea id="note" placeholder="Optional notes..."></textarea></div>
+            <div class="fg2" style="margin-top:10px">
               <div class="fr"><label>Balance</label><div class="balbox balpos" id="balance">Rs 0</div></div>
             </div>
-            <div class="fr"><label>Note</label><textarea id="note" placeholder="Any remarks..."></textarea></div>
           </div>
         </div>
         <div class="factions">
-          <button class="btn btnsm btng" onclick="saveRecord()">Save Record</button>
-          <button class="btn btnsm btngr" onclick="clearForm()">Clear</button>
+          <button class="btn btng" onclick="saveRecord()">💾 Save Record</button>
+          <button class="btn btnsm" onclick="clearForm()">Clear</button>
           <button class="btn btnsm btnbl" onclick="goPg('view',document.getElementById('nb-view'))">View Records</button>
         </div>
       </div>
@@ -477,10 +614,8 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
     <div class="pg" id="set">
       <div class="setc">
         <h4>🔥 Firebase Connection</h4>
-        <div id="fb-status-box" style="padding:12px;border-radius:8px;background:var(--bg);margin-bottom:10px;font-size:13px">
-          Checking Firebase connection...
-        </div>
-        <p style="font-size:12px;color:#9e9b93">Firebase Realtime Database — Real-time sync across all devices automatically. No manual URL needed.</p>
+        <div id="fb-status-box" style="padding:12px;border-radius:8px;background:var(--bg);margin-bottom:10px;font-size:13px">Checking Firebase connection...</div>
+        <p style="font-size:12px;color:#9e9b93">Firebase Realtime Database — Real-time sync across all devices. Dropdowns always fetched fresh from Firebase.</p>
         <div class="factions">
           <button class="btn btnsm btng" onclick="fbSyncAll()">↻ Force Sync Now</button>
         </div>
@@ -493,20 +628,33 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
           <button class="btn btnsm btng" onclick="saveLists()">💾 Save & Sync</button>
         </div>
       </div>
+    </div>
+
+    <!-- USERS & PERMISSIONS (Admin Only) -->
+    <div class="pg" id="users">
       <div class="setc">
-        <h4>User Management</h4>
-        <p style="font-size:12px;color:#9e9b93;margin-bottom:10px">Changes sync to Google Sheet automatically when connected.</p>
-        <div id="users-list"></div>
-        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;max-width:500px">
-          <input type="text" id="add-uname" placeholder="Username" style="flex:1;min-width:120px;padding:8px 10px;border-radius:7px;border:1px solid var(--bd);font-size:var(--fs-sm);background:var(--sf);color:var(--tx);font-family:'DM Sans',sans-serif">
-          <input type="text" id="add-upass" placeholder="Password" style="flex:1;min-width:120px;padding:8px 10px;border-radius:7px;border:1px solid var(--bd);font-size:var(--fs-sm);background:var(--sf);color:var(--tx);font-family:'DM Sans',sans-serif">
-          <select id="add-urole" style="padding:8px 10px;border-radius:7px;border:1px solid var(--bd);font-size:var(--fs-sm);background:var(--sf);color:var(--tx);font-family:'DM Sans',sans-serif">
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-          </select>
-          <button class="btn btnsm btng" onclick="addUser()">Add User</button>
-          <button class="btn btnsm btnbl" onclick="fbSyncUsers()">↑ Sync Users</button>
+        <h4>👥 User Management</h4>
+        <p style="font-size:12px;color:#9e9b93;margin-bottom:12px">Add users, set roles, and assign District/City/Plant permissions. Changes sync to Firebase instantly.</p>
+        <!-- Add user form -->
+        <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:14px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--bl)">➕ Add New User</div>
+          <div class="fg3">
+            <div class="fr"><label>Username</label><input type="text" id="add-uname" placeholder="Username"></div>
+            <div class="fr"><label>Password</label><input type="text" id="add-upass" placeholder="Password"></div>
+            <div class="fr"><label>Role</label>
+              <select id="add-urole">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+          <div class="factions" style="margin-top:10px">
+            <button class="btn btnsm btng" onclick="addUser()">Add User</button>
+            <button class="btn btnsm btnbl" onclick="fbSyncUsers()">↑ Sync Users to Firebase</button>
+          </div>
         </div>
+        <!-- Users list -->
+        <div id="users-list"></div>
       </div>
     </div>
 
@@ -534,10 +682,52 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
         <div class="fr" style="margin-bottom:10px"><label>New Password</label><input type="password" id="cp-new" placeholder="New password"></div>
         <div class="fr" style="margin-bottom:14px"><label>Confirm Password</label><input type="password" id="cp-conf" placeholder="Confirm new password"></div>
         <button class="btn btng" onclick="changePassword()">Update Password</button>
+        <!-- Theme on mobile -->
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bd)">
+          <h4 style="margin-bottom:12px;font-size:var(--fs);color:var(--tx)">Appearance</h4>
+          <div class="qp-title">Theme</div>
+          <div class="qp-row" style="margin-bottom:10px">
+            <button class="qpbtn th-light" id="p-th-light" onclick="setTheme('light')">☀️ Light</button>
+            <button class="qpbtn th-dark" id="p-th-dark" onclick="setTheme('dark')">🌙 Dark</button>
+            <button class="qpbtn th-green" id="p-th-green" onclick="setTheme('green')">🌿 Green</button>
+            <button class="qpbtn th-navy" id="p-th-navy" onclick="setTheme('navy')">🔵 Navy</button>
+          </div>
+          <div class="qp-title">Font Size</div>
+          <div class="qp-row">
+            <button class="qpbtn" id="p-fs-sm" onclick="setFS('sm')" style="font-size:11px">Small</button>
+            <button class="qpbtn" id="p-fs-md" onclick="setFS('md')" style="font-size:13px">Medium</button>
+            <button class="qpbtn" id="p-fs-lg" onclick="setFS('lg')" style="font-size:15px">Large</button>
+            <button class="qpbtn" id="p-fs-xl" onclick="setFS('xl')" style="font-size:17px">XL</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
+  </div><!-- end .mw -->
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mob-bottom-nav" id="mob-bottom-nav">
+    <button class="mob-bnav-btn active" id="bn-dash" onclick="goPg('dash',this,false,true)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Dashboard</span>
+    </button>
+    <button class="mob-bnav-btn" id="bn-view" onclick="goPg('view',this,false,true)">
+      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+      <span>Records</span>
+    </button>
+    <button class="mob-bnav-btn mob-bnav-add" id="bn-new" onclick="goPg('new',null,false,true)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span>Add</span>
+    </button>
+    <button class="mob-bnav-btn" id="bn-profile" onclick="goPg('profile',this,false,true)">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </button>
+    <button class="mob-bnav-btn" onclick="toggleMobSB()">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <span>More</span>
+    </button>
+  </nav>
+</div><!-- end .app -->
 
 <!-- EDIT MODAL -->
 <div class="modal" id="editModal">
@@ -583,6 +773,19 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
   </div>
 </div>
 
+<!-- PERM MODAL -->
+<div class="modal" id="permModal">
+  <div class="mbox" style="max-width:500px">
+    <h3 id="perm-modal-title">Assign Permissions</h3>
+    <p style="font-size:12px;color:#9e9b93;margin-bottom:12px">Tick Districts, Cities, and Plants this user can access.</p>
+    <div id="perm-panel-content" style="max-height:60vh;overflow-y:auto"></div>
+    <div class="factions">
+      <button class="btn btnsm btng" onclick="savePermissions()">Save Permissions</button>
+      <button class="btn btnsm" onclick="closeM('permModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- GOOD WORK POPUP -->
 <div class="gw-backdrop" id="gwBackdrop"></div>
 <div class="gw-popup" id="gwPopup">
@@ -594,9 +797,58 @@ tr:hover td{background:rgba(26,90,140,.05)!important;cursor:pointer}
 <!-- SYNC TOAST -->
 <div class="sync-toast" id="syncToast"></div>
 
+<!-- INSTALL BANNER -->
+<div class="install-banner" id="installBanner">
+  💧 Install Wash Plant App
+  <button class="btn btnsm" style="background:#fff;color:var(--bl);border-color:#fff" onclick="installApp()">Install</button>
+  <button class="btn btnsm" style="background:transparent;color:#fff;border-color:rgba(255,255,255,.4)" onclick="dismissInstall()">✕</button>
+</div>
+
 <script>
+// ===== PWA SERVICE WORKER =====
+if('serviceWorker' in navigator){
+  // Inline SW for single-file deployment
+  const swCode = `
+const CACHE = 'wp-v7';
+const ASSETS = ['/'];
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS).catch(()=>{})));
+  self.skipWaiting();
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
+});
+self.addEventListener('fetch', e => {
+  if(e.request.url.includes('firebase') || e.request.url.includes('googleapis')) return;
+  e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));
+});
+  `;
+  const blob = new Blob([swCode], {type:'text/javascript'});
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(()=>{});
+}
+
+// ===== PWA INSTALL =====
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').classList.add('show');
+});
+function installApp(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; dismissInstall(); });
+}
+function dismissInstall(){
+  document.getElementById('installBanner').classList.remove('show');
+}
+
 // ===== GLOBALS =====
-let USERS = JSON.parse(localStorage.getItem('wp_users')) || {admin:{pass:'12345',role:'admin'}, user:{pass:'123',role:'user'}};
+let USERS = JSON.parse(localStorage.getItem('wp_users')) || {
+  admin:{pass:'12345',role:'admin',perms:null},
+  user:{pass:'123',role:'user',perms:null}
+};
 let currentUser = null;
 let currentRole = null;
 let allRecords = [];
@@ -607,56 +859,50 @@ let sortCol = '';
 let sortDir = 1;
 let chartP = null, chartD = null;
 let fbRecordsListener = null;
-let lists = JSON.parse(localStorage.getItem('wp_lists')) || {
+let editingPermUser = null;
+let lists = {
   district:['Karachi','Lahore','Islamabad'],
   city:{Karachi:['Gulshan','Saddar','Defence'],Lahore:['Gulberg','DHA','Model Town'],Islamabad:['F-6','G-9','I-8']},
   plant:['Plant A','Plant B','Plant C'],
   shift:['Morning','Evening','Night'],
   person:['Ali','Ahmed','Bilal']
 };
+// DO NOT load lists from localStorage - always fetch fresh from Firebase
 
-// Init theme/font
+// Init theme/font immediately
 (()=>{
   document.body.setAttribute('data-theme', localStorage.getItem('wp_theme')||'light');
   document.body.setAttribute('data-fontsize', localStorage.getItem('wp_fs')||'md');
 })();
 
 document.getElementById('lp').onkeydown = e=>{ if(e.key==='Enter') doLogin(); };
-document.addEventListener('click', e=>{ if(!e.target.closest('#qpanel')&&!e.target.closest('#custbtn')) document.getElementById('qpanel').classList.remove('open'); });
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#qpanel')&&!e.target.closest('#custbtn'))
+    document.getElementById('qpanel').classList.remove('open');
+});
 
 // ===== FIREBASE HELPERS =====
 function fb(){ return window._FB; }
 function fbRef(path){ return fb().ref(fb().db, path); }
-
 async function fbGet(path){
   const snap = await fb().get(fbRef(path));
   return snap.exists() ? snap.val() : null;
 }
-async function fbSet(path, val){
-  await fb().set(fbRef(path), val);
-}
-async function fbUpdate(path, val){
-  await fb().update(fbRef(path), val);
-}
-async function fbRemove(path){
-  await fb().remove(fbRef(path));
-}
+async function fbSet(path, val){ await fb().set(fbRef(path), val); }
+async function fbRemove(path){ await fb().remove(fbRef(path)); }
 function fbListen(path, cb){
   const r = fbRef(path);
   fb().onValue(r, cb);
   return r;
 }
 
-// ===== GOOD WORK POPUP =====
+// ===== TOAST & POPUP =====
 function showGoodWork(msg='Record saved successfully'){
-  const pop=document.getElementById('gwPopup');
-  const bd=document.getElementById('gwBackdrop');
+  const pop=document.getElementById('gwPopup'), bd=document.getElementById('gwBackdrop');
   document.getElementById('gwSub').textContent=msg;
   pop.classList.add('show'); bd.classList.add('show');
   setTimeout(()=>{ pop.classList.remove('show'); bd.classList.remove('show'); }, 1800);
 }
-
-// ===== SYNC TOAST =====
 let toastTimer=null;
 function showToast(msg,type='ok'){
   const t=document.getElementById('syncToast');
@@ -668,225 +914,312 @@ function showToast(msg,type='ok'){
 
 // ===== FIREBASE STATUS =====
 function updateFbStatus(ok){
-  const box = document.getElementById('fb-status-box');
-  if(!box) return;
-  if(ok){
-    box.style.background='#eaf3de'; box.style.color='#2d7a3a';
-    box.innerHTML='🟢 <b>Firebase Connected</b> — Real-time sync active. All devices synced automatically.';
-  } else {
-    box.style.background='#fcebeb'; box.style.color='#a32d2d';
-    box.innerHTML='🔴 <b>Firebase Offline</b> — Working locally. Data will sync when connection restores.';
+  const box=document.getElementById('fb-status-box');
+  if(box){
+    box.style.background=ok?'#eaf3de':'#fcebeb';
+    box.style.color=ok?'#2d7a3a':'#a32d2d';
+    box.innerHTML=ok?'🟢 <b>Firebase Connected</b> — Real-time sync active.':'🔴 <b>Firebase Offline</b> — Working locally.';
   }
   const badge=document.getElementById('cbadge');
-  badge.className='cbadge '+(ok?'online':'offline');
-  document.getElementById('ctxt').textContent=ok?'Firebase Live':'Offline';
+  if(badge){
+    badge.className='cbadge '+(ok?'online':'offline');
+    document.getElementById('ctxt').textContent=ok?'Firebase Live':'Offline';
+  }
 }
 
 // ===== AUTH =====
 async function doLogin(){
-  const u = document.getElementById('lu').value.trim();
-  const p = document.getElementById('lp').value.trim();
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value.trim();
   if(!u||!p){ showErr('Please enter username and password.'); return; }
-
-  const ind = document.getElementById('sync-indicator');
+  const ind=document.getElementById('sync-indicator');
   ind.style.display='block';
-
-  // Try local first
-  if(USERS[u] && USERS[u].pass === p){
-    ind.style.display='none';
-    await loginSuccess(u); return;
-  }
-
-  // Try Firebase users
+  // Try Firebase first (force fresh)
   try{
-    const fbUsers = await fbGet('config/users');
+    const fbUsers=await fbGet('config/users');
     if(fbUsers){
       Object.keys(fbUsers).forEach(k=>{
         const d=fbUsers[k];
-        USERS[k]={pass:d.pass||d, role:d.role||'user'};
+        USERS[k]={pass:d.pass||d,role:d.role||'user',perms:d.perms||null};
       });
       localStorage.setItem('wp_users',JSON.stringify(USERS));
     }
-    if(USERS[u] && USERS[u].pass === p){
-      ind.style.display='none';
-      await loginSuccess(u); return;
-    }
-  }catch(e){ console.log('Firebase auth check failed',e); }
-
+  }catch(e){}
+  if(USERS[u]&&USERS[u].pass===p){
+    ind.style.display='none'; await loginSuccess(u); return;
+  }
   ind.style.display='none';
   showErr('Invalid username or password.');
 }
 
 async function loginSuccess(u){
-  currentUser = u;
-  currentRole = USERS[u].role||'user';
+  currentUser=u; currentRole=USERS[u].role||'user';
   document.getElementById('LP').style.display='none';
   document.getElementById('AP').classList.add('open');
-  document.getElementById('uav').textContent = u[0].toUpperCase();
-  document.getElementById('unm').textContent = u;
-  document.getElementById('urole').textContent = currentRole==='admin'?'Administrator':'User';
-  document.getElementById('p-av').textContent = u[0].toUpperCase();
-  document.getElementById('p-name').textContent = u;
-  document.getElementById('p-role').textContent = currentRole==='admin'?'Administrator':'User';
-  document.getElementById('p-change-uname-btn').style.display = currentRole==='admin'?'block':'none';
-  document.getElementById('date').value = new Date().toISOString().split('T')[0];
+  // Update desktop sidebar
+  document.getElementById('uav').textContent=u[0].toUpperCase();
+  document.getElementById('unm').textContent=u;
+  document.getElementById('urole').textContent=currentRole==='admin'?'Administrator':'User';
+  // Update mobile sidebar
+  document.getElementById('mob-uav').textContent=u[0].toUpperCase();
+  document.getElementById('mob-unm').textContent=u;
+  document.getElementById('mob-urole').textContent=currentRole==='admin'?'Administrator':'User';
+  // Update profile
+  document.getElementById('p-av').textContent=u[0].toUpperCase();
+  document.getElementById('p-name').textContent=u;
+  document.getElementById('p-role').textContent=currentRole==='admin'?'Administrator':'User';
+  document.getElementById('p-change-uname-btn').style.display=currentRole==='admin'?'block':'none';
+  document.getElementById('date').value=new Date().toISOString().split('T')[0];
   applyRoleAccess();
   loadThemeUI(); loadFSUI();
-  loadLists(); genID();
-
-  // Start Firebase sync
-  fbSyncAll();
+  await fbSyncAll(); // always fetch fresh from Firebase
 }
 
-// ===== FIREBASE FULL SYNC =====
+// ===== FIREBASE FULL SYNC (always fresh, no cache for lists) =====
 async function fbSyncAll(){
   try{
-    // 1. Sync config (lists + users)
-    const cfg = await fbGet('config');
+    // Force fetch config fresh from Firebase (no local cache used)
+    const cfg=await fbGet('config');
     if(cfg){
       if(cfg.district?.length) lists.district=cfg.district;
       if(cfg.plant?.length) lists.plant=cfg.plant;
       if(cfg.shift?.length) lists.shift=cfg.shift;
       if(cfg.person?.length) lists.person=cfg.person;
-      if(cfg.city) Object.assign(lists.city, cfg.city);
+      if(cfg.city) lists.city={...cfg.city};
       if(cfg.users){
         Object.keys(cfg.users).forEach(k=>{
           const d=cfg.users[k];
-          USERS[k]={pass:d.pass||d,role:d.role||'user'};
+          USERS[k]={pass:d.pass||d,role:d.role||'user',perms:d.perms||null};
         });
         localStorage.setItem('wp_users',JSON.stringify(USERS));
       }
-      localStorage.setItem('wp_lists',JSON.stringify(lists));
-      loadLists();
+      // DO NOT write lists to localStorage - keep them ephemeral
     }
-
-    // 2. Start real-time records listener
+    loadLists();
     startRecordsListener();
-
     updateFbStatus(true);
-    showToast('✓ Firebase connected & synced','ok');
+    showToast('✓ Firebase synced (fresh dropdowns)','ok');
   }catch(e){
     updateFbStatus(false);
-    showToast('Firebase error — using local data','err');
+    showToast('Firebase error — using defaults','err');
     loadLocalRecords();
   }
 }
 
-// ===== REAL-TIME RECORDS LISTENER =====
+// ===== RECORDS LISTENER =====
 function startRecordsListener(){
-  // Stop old listener if any
   if(fbRecordsListener) fb().off(fbRecordsListener);
-
-  fbRecordsListener = fbListen('records', snap=>{
-    const val = snap.val();
-    allRecords = [];
+  fbRecordsListener=fbListen('records', snap=>{
+    const val=snap.val();
+    let recs=[];
     if(val){
       Object.keys(val).forEach(k=>{
-        const r=val[k];
-        allRecords.push({...r, _key:k, _source:'firebase'});
+        recs.push({...val[k],_key:k,_source:'firebase'});
       });
     }
-    // Merge local records not yet on Firebase
+    // Merge local only records
     for(let i=0;i<localStorage.length;i++){
       const k=localStorage.key(i);
       if(k&&k.startsWith('rec_')){
         try{
           const r=JSON.parse(localStorage.getItem(k));
-          if(!allRecords.find(x=>x.uid&&x.uid===r.uid)){
-            allRecords.push({...r,_key:k,_source:'local'});
-          }
+          if(!recs.find(x=>x.uid&&x.uid===r.uid)) recs.push({...r,_key:k,_source:'local'});
         }catch(e){}
       }
     }
-    allRecords.sort((a,b)=>new Date(b.timestamp||0)-new Date(a.timestamp||0));
+    recs.sort((a,b)=>new Date(b.timestamp||0)-new Date(a.timestamp||0));
+    // Apply user scope filter
+    allRecords=filterByScope(recs);
     filteredRecords=[...allRecords];
     renderTable(); updateStats(); renderRecent();
   });
 }
 
 function loadLocalRecords(){
-  allRecords=[];
+  let recs=[];
   for(let i=0;i<localStorage.length;i++){
     const k=localStorage.key(i);
-    if(k&&k.startsWith('rec_')){ try{ allRecords.push({...JSON.parse(localStorage.getItem(k)),_key:k,_source:'local'}); }catch(e){} }
+    if(k&&k.startsWith('rec_')){ try{ recs.push({...JSON.parse(localStorage.getItem(k)),_key:k,_source:'local'}); }catch(e){} }
   }
-  allRecords.sort((a,b)=>new Date(b.timestamp||0)-new Date(a.timestamp||0));
+  recs.sort((a,b)=>new Date(b.timestamp||0)-new Date(a.timestamp||0));
+  allRecords=filterByScope(recs);
   filteredRecords=[...allRecords];
   renderTable(); updateStats(); renderRecent();
+}
+
+// ===== SCOPE FILTER (user permissions) =====
+function filterByScope(recs){
+  if(currentRole==='admin') return recs;
+  const perms=USERS[currentUser]?.perms;
+  if(!perms) return []; // No permissions = see nothing
+  return recs.filter(r=>{
+    const distPerms=perms[r.district];
+    if(!distPerms) return false;
+    if(distPerms==='all') return true;
+    const cityPerms=distPerms[r.city];
+    if(!cityPerms) return false;
+    if(cityPerms==='all') return true;
+    return cityPerms.includes&&cityPerms.includes(r.plant);
+  });
+}
+
+// Get user's allowed options for dropdowns
+function getScopeOptions(){
+  if(currentRole==='admin') return null; // null = show all
+  const perms=USERS[currentUser]?.perms;
+  if(!perms) return {districts:[],cities:{},plants:{}};
+  const districts=Object.keys(perms);
+  const cities={}, plants={};
+  districts.forEach(dist=>{
+    const dp=perms[dist];
+    if(dp==='all'){
+      cities[dist]=lists.city[dist]||[];
+      cities[dist].forEach(c=>{ plants[c]=lists.plant; });
+    } else {
+      cities[dist]=Object.keys(dp);
+      Object.keys(dp).forEach(city=>{
+        const cp=dp[city];
+        plants[city]=cp==='all'?lists.plant:cp;
+      });
+    }
+  });
+  return {districts,cities,plants};
 }
 
 function showErr(msg){ const e=document.getElementById('lerr'); e.textContent=msg; e.style.display='block'; }
 
 function doLogout(){
   currentUser=null; currentRole=null;
-  if(fbRecordsListener) { fb().off(fbRecordsListener); fbRecordsListener=null; }
+  if(fbRecordsListener){fb().off(fbRecordsListener);fbRecordsListener=null;}
   document.getElementById('AP').classList.remove('open');
   document.getElementById('LP').style.display='flex';
   document.getElementById('lu').value=''; document.getElementById('lp').value='';
+  allRecords=[]; filteredRecords=[];
 }
 
 function applyRoleAccess(){
-  const isAdmin = currentRole==='admin';
+  const isAdmin=currentRole==='admin';
   document.querySelectorAll('.admin-only').forEach(el=>el.style.display=isAdmin?'':'none');
-  document.getElementById('admin-sec').style.display=isAdmin?'':'none';
 }
 
 // ===== NAV =====
-function goPg(pg, btn){
-  if(pg==='set' && currentRole!=='admin'){ alert('Access denied.'); return; }
+function goPg(pg, btn, fromMobSidebar=false, fromBottomNav=false){
+  if((pg==='set'||pg==='users')&&currentRole!=='admin'){ alert('Access denied.'); return; }
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   document.getElementById(pg).classList.add('active');
-  if(btn) btn.classList.add('active');
-  const titles={dash:'Dashboard',new:'Add Record',view:'View Records',set:'Settings',profile:'My Profile'};
-  document.getElementById('ptitle').textContent = titles[pg]||pg;
-  if(pg==='view') {} // real-time listener handles it
-  if(pg==='set'){ renderListMgr(); renderUsersMgr(); }
+
+  // Desktop sidebar active
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const desktopBtn=document.getElementById('nb-'+pg);
+  if(desktopBtn) desktopBtn.classList.add('active');
+
+  // Mobile sidebar active
+  document.querySelectorAll('.mob-nb').forEach(b=>b.classList.remove('active'));
+  const mobSbBtn=document.getElementById('mob-nb-'+pg);
+  if(mobSbBtn) mobSbBtn.classList.add('active');
+
+  // Bottom nav active
+  document.querySelectorAll('.mob-bnav-btn').forEach(b=>b.classList.remove('active'));
+  const bnBtn=document.getElementById('bn-'+pg);
+  if(bnBtn) bnBtn.classList.add('active');
+
+  const titles={dash:'Dashboard',new:'Add Record',view:'View Records',set:'Settings',users:'Users & Permissions',profile:'My Profile'};
+  document.getElementById('ptitle').textContent=titles[pg]||pg;
+
+  if(pg==='set'){renderListMgr();}
+  if(pg==='users'&&currentRole==='admin'){renderUsersMgr();}
   if(pg==='dash') renderDash();
-  if(window.innerWidth<=768) closeSB();
+  if(pg==='profile'){loadThemeUI();loadFSUI();}
+  if(fromMobSidebar) closeMobSB();
 }
-function toggleSB(){ const sb=document.getElementById('SB'),ov=document.getElementById('mob-ov'); sb.classList.toggle('open'); ov.style.display=sb.classList.contains('open')?'block':'none'; }
-function closeSB(){ document.getElementById('SB').classList.remove('open'); document.getElementById('mob-ov').style.display='none'; }
+
+// Mobile sidebar
+function toggleMobSB(){
+  const sb=document.getElementById('mob-sidebar');
+  const ov=document.getElementById('mob-ov');
+  sb.classList.toggle('open');
+  ov.style.display=sb.classList.contains('open')?'block':'none';
+}
+function closeMobSB(){
+  document.getElementById('mob-sidebar').classList.remove('open');
+  document.getElementById('mob-ov').style.display='none';
+}
 
 // ===== QUICK PANEL =====
 function toggleQPanel(){ document.getElementById('qpanel').classList.toggle('open'); }
-function setTheme(t){ document.body.setAttribute('data-theme',t); localStorage.setItem('wp_theme',t); loadThemeUI(); if(chartP||chartD) renderDash(); }
+function setTheme(t){
+  document.body.setAttribute('data-theme',t);
+  localStorage.setItem('wp_theme',t);
+  loadThemeUI();
+  if(chartP||chartD) renderDash();
+}
 function loadThemeUI(){
   const t=localStorage.getItem('wp_theme')||'light';
-  document.querySelectorAll('.qpbtn[id^="th-"]').forEach(b=>b.classList.remove('active'));
-  const el=document.getElementById('th-'+t); if(el) el.classList.add('active');
+  document.querySelectorAll('[id^="th-"]').forEach(b=>b.classList.remove('active'));
+  ['th-'+t,'p-th-'+t].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('active');});
 }
-function setFS(s){ document.body.setAttribute('data-fontsize',s); localStorage.setItem('wp_fs',s); loadFSUI(); }
+function setFS(s){
+  document.body.setAttribute('data-fontsize',s);
+  localStorage.setItem('wp_fs',s);
+  loadFSUI();
+}
 function loadFSUI(){
   const f=localStorage.getItem('wp_fs')||'md';
-  document.querySelectorAll('.qpbtn[id^="fs-"]').forEach(b=>b.classList.remove('active'));
-  const el=document.getElementById('fs-'+f); if(el) el.classList.add('active');
+  document.querySelectorAll('[id^="fs-"],[id^="p-fs-"]').forEach(b=>b.classList.remove('active'));
+  ['fs-'+f,'p-fs-'+f].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('active');});
 }
 
 // ===== SECTION TOGGLE =====
 function toggleSec(el){
   el.classList.toggle('collapsed');
-  const body=el.nextElementSibling;
-  body.classList.toggle('collapsed');
+  el.nextElementSibling.classList.toggle('collapsed');
   const ico=el.querySelector('.toggle-ico');
   if(ico) ico.style.transform=el.classList.contains('collapsed')?'rotate(-90deg)':'rotate(0deg)';
 }
 
-// ===== LISTS =====
+// ===== LISTS (always from Firebase, not localStorage) =====
 function loadLists(){
+  const scope=getScopeOptions();
+  const allDists=[...new Set(Object.keys(lists.city||{}).concat(lists.district||[]))];
+  const filteredDists=scope?scope.districts:allDists;
+
   const dSel=document.getElementById('district');
-  dSel.innerHTML='<option value="">Select...</option>'+Object.keys(lists.city||{}).concat(lists.district||[]).filter((v,i,a)=>a.indexOf(v)===i).map(d=>`<option value="${d}">${d}</option>`).join('');
+  if(dSel){
+    dSel.innerHTML='<option value="">Select...</option>'+filteredDists.map(d=>`<option value="${d}">${d}</option>`).join('');
+  }
   document.getElementById('city').innerHTML='<option value="">Select district first</option>';
-  ['plant','shift','person'].forEach(k=>{
+
+  ['shift','person'].forEach(k=>{
     const sel=document.getElementById(k);
     if(sel) sel.innerHTML='<option value="">Select...</option>'+(lists[k]||[]).map(v=>`<option value="${v}">${v}</option>`).join('');
   });
+
+  // Plant depends on scope too - will be set when city is selected
+  const pSel=document.getElementById('plant');
+  if(pSel) pSel.innerHTML='<option value="">Select...</option>'+(lists.plant||[]).map(v=>`<option value="${v}">${v}</option>`).join('');
 }
+
 function updateCityOptions(){
   const dist=document.getElementById('district').value;
-  const citySel=document.getElementById('city');
-  const cities=(lists.city&&lists.city[dist])||[];
-  citySel.innerHTML='<option value="">Select...</option>'+cities.map(v=>`<option value="${v}">${v}</option>`).join('');
+  const scope=getScopeOptions();
+  const allCities=(lists.city&&lists.city[dist])||[];
+  const filteredCities=scope?(scope.cities[dist]||[]):allCities;
+  document.getElementById('city').innerHTML='<option value="">Select...</option>'+filteredCities.map(v=>`<option value="${v}">${v}</option>`).join('');
+
+  // Reset plant based on scope
+  const scope2=getScopeOptions();
+  const city=document.getElementById('city').value;
+  const allPlants=lists.plant||[];
+  const filteredPlants=scope2&&city?(scope2.plants[city]||allPlants):allPlants;
+  document.getElementById('plant').innerHTML='<option value="">Select...</option>'+filteredPlants.map(v=>`<option value="${v}">${v}</option>`).join('');
+}
+
+function updatePlantOptions(){
+  const city=document.getElementById('city').value;
+  const scope=getScopeOptions();
+  const allPlants=lists.plant||[];
+  const filteredPlants=scope&&city?(scope.plants[city]||allPlants):allPlants;
+  document.getElementById('plant').innerHTML='<option value="">Select...</option>'+filteredPlants.map(v=>`<option value="${v}">${v}</option>`).join('');
 }
 
 // ===== FORM =====
@@ -908,18 +1241,13 @@ function calcBal(){
   b.className='balbox '+(bal<0?'balneg':'balpos');
 }
 function clearForm(){
-  ['cwater','fwater','dexp','oexp','oexpd','ebill','prent','note'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
-  ['district','city','plant','shift','person'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['cwater','fwater','dexp','oexp','oexpd','ebill','prent','note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['district','city','plant','shift','person'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('date').value=new Date().toISOString().split('T')[0];
   document.getElementById('balance').textContent='Rs 0';
   document.getElementById('balance').className='balbox balpos';
   genID();
 }
-
-// ===== ONLINE STATUS =====
-function updateOnline(){ /* handled by Firebase status */ }
-window.addEventListener('online', ()=>{ fbSyncAll(); });
-window.addEventListener('offline', ()=>updateFbStatus(false));
 
 // ===== SAVE RECORD =====
 async function saveRecord(){
@@ -929,38 +1257,28 @@ async function saveRecord(){
   if(cw===''){ alert('Consume Water is required.'); return; }
   if(fw===''){ alert('Free Water is required.'); return; }
   const record={
-    uid:g('uid'), district:g('district'), city:g('city'), plant:g('plant'),
-    date:g('date'), shift:g('shift'), person:g('person'),
-    cwater:+cw||0, fwater:+fw||0, dexp:+g('dexp')||0, oexp:+g('oexp')||0,
-    oexpd:g('oexpd'), ebill:+g('ebill')||0, prent:+g('prent')||0,
-    note:g('note'), user:currentUser, timestamp:new Date().toISOString()
+    uid:g('uid')||('REC'+Date.now()),
+    district:g('district'),city:g('city'),plant:g('plant'),
+    date:g('date'),shift:g('shift'),person:g('person'),
+    cwater:+cw||0,fwater:+fw||0,dexp:+g('dexp')||0,oexp:+g('oexp')||0,
+    oexpd:g('oexpd'),ebill:+g('ebill')||0,prent:+g('prent')||0,
+    note:g('note'),user:currentUser,timestamp:new Date().toISOString()
   };
   record.balance=(+record.cwater)-(+record.fwater)-(+record.dexp)-(+record.oexp)-(+record.ebill)-(+record.prent);
 
-  // Save to Firebase
   if(window._FB_READY){
     try{
-      const newRef = fb().ref(fb().db, 'records/'+record.uid);
-      await fb().set(newRef, record);
+      await fbSet('records/'+record.uid, record);
       showGoodWork('Saved to Firebase ✓ (all devices updated)');
-      clearForm();
-      return;
+      clearForm(); return;
     }catch(e){ showToast('Firebase save failed, saving locally','err'); }
   }
-
-  // Fallback: local
   const k='rec_'+Date.now();
   record._key=k; record._source='local';
   localStorage.setItem(k,JSON.stringify(record));
   allRecords.unshift(record);
   showGoodWork('Saved locally ✓');
   clearForm(); renderTable(); updateStats(); renderRecent();
-}
-
-// ===== LOAD (manual refresh) =====
-async function loadRecords(){
-  showToast('Refreshing...','ok');
-  fbSyncAll();
 }
 
 // ===== TABLE =====
@@ -981,8 +1299,8 @@ function renderTable(){
       <td>${(+r.ebill||0).toLocaleString()}</td><td>${(+r.prent||0).toLocaleString()}</td>
       <td class="${r.balance<0?'neg':'pos'}">Rs ${(+r.balance||0).toLocaleString()}</td>
       <td onclick="event.stopPropagation()" style="white-space:nowrap">
-        <button class="btn btnsm" style="padding:3px 8px" onclick="editRecord('${r._key}')">✏️</button>
-        <button class="btn btnsm btnr" style="padding:3px 8px" onclick="delRecord('${r._key}')">🗑️</button>
+        ${currentRole==='admin'?`<button class="btn btnsm" style="padding:3px 8px" onclick="editRecord('${r._key}')">✏️</button>
+        <button class="btn btnsm btnr" style="padding:3px 8px" onclick="delRecord('${r._key}')">🗑️</button>`:'<span style="font-size:11px;color:#9e9b93">View only</span>'}
       </td>
     </tr>`).join('');
 }
@@ -1002,10 +1320,10 @@ function filterTbl(){
 
 // ===== SORT =====
 function sortTbl(col){
-  if(sortCol===col) sortDir*=-1; else{ sortCol=col; sortDir=1; }
-  document.querySelectorAll('.sa').forEach(a=>{ a.textContent='↕'; a.classList.remove('on'); });
+  if(sortCol===col) sortDir*=-1; else{sortCol=col;sortDir=1;}
+  document.querySelectorAll('.sa').forEach(a=>{a.textContent='↕';a.classList.remove('on');});
   const a=document.getElementById('sa-'+col);
-  if(a){ a.textContent=sortDir===1?'↑':'↓'; a.classList.add('on'); }
+  if(a){a.textContent=sortDir===1?'↑':'↓';a.classList.add('on');}
   filteredRecords.sort((a,b)=>{
     const av=isNaN(a[col])?String(a[col]||''):+a[col];
     const bv=isNaN(b[col])?String(b[col]||''):+b[col];
@@ -1019,10 +1337,10 @@ setTimeout(()=>{
   document.querySelectorAll('.resizer').forEach(r=>{
     let sX,sW,th;
     r.addEventListener('mousedown',e=>{
-      th=r.closest('th'); sX=e.pageX; sW=th.offsetWidth; r.classList.add('on');
+      th=r.closest('th');sX=e.pageX;sW=th.offsetWidth;r.classList.add('on');
       const mv=e=>th.style.minWidth=Math.max(55,sW+(e.pageX-sX))+'px';
-      const up=()=>{ r.classList.remove('on'); document.removeEventListener('mousemove',mv); document.removeEventListener('mouseup',up); };
-      document.addEventListener('mousemove',mv); document.addEventListener('mouseup',up); e.preventDefault();
+      const up=()=>{r.classList.remove('on');document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};
+      document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);e.preventDefault();
     });
   });
 },800);
@@ -1045,7 +1363,7 @@ function renderRecent(){
   const recent=allRecords.slice(0,8);
   tbody.innerHTML=!recent.length
     ?'<tr><td colspan="6" style="text-align:center;padding:18px;color:#9e9b93">No records</td></tr>'
-    :recent.map(r=>`<tr><td><span class="badge ${r._source==='firebase'?'bsheet':'bid'}">${r.uid||'-'}</span></td><td>${r.date||'-'}</td><td>${r.plant||'-'}</td><td>${r.person||'-'}</td><td class="${r.balance<0?'neg':'pos'}">Rs ${(+r.balance||0).toLocaleString()}</td><td><span style="font-size:11px;padding:2px 7px;border-radius:10px;background:${r._source==='firebase'?'#dbeafe':'var(--bg)'};color:${r._source==='firebase'?'#1e40af':'#9e9b93'}">${r._source==='firebase'?'🔥 Firebase':'Local'}</span></td></tr>`).join('');
+    :recent.map(r=>`<tr><td><span class="badge ${r._source==='firebase'?'bsheet':'bid'}">${r.uid||'-'}</span></td><td>${r.date||'-'}</td><td>${r.plant||'-'}</td><td>${r.person||'-'}</td><td class="${r.balance<0?'neg':'pos'}">Rs ${(+r.balance||0).toLocaleString()}</td><td><span style="font-size:11px;padding:2px 7px;border-radius:10px;background:${r._source==='firebase'?'#dbeafe':'var(--bg)'};color:${r._source==='firebase'?'#1e40af':'#9e9b93'}">${r._source==='firebase'?'🔥':'Local'}</span></td></tr>`).join('');
 }
 function renderDash(){
   updateStats(); renderRecent();
@@ -1060,7 +1378,7 @@ function renderDash(){
     data:{labels:plants.length?plants:['No Data'],datasets:[{label:'Balance',data:plants.length?pBals:[0],backgroundColor:plants.length?pBals.map(v=>v<0?'rgba(163,45,45,.7)':'rgba(26,90,140,.7)'):'rgba(200,200,200,.5)',borderRadius:5}]},
     options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{grid:{color:gc},ticks:{color:tc}},x:{grid:{color:gc},ticks:{color:tc}}}}
   });
-  const last6=[...Array(6)].map((_,i)=>{ const d=new Date(); d.setMonth(d.getMonth()-5+i); return d.toISOString().slice(0,7); });
+  const last6=[...Array(6)].map((_,i)=>{const d=new Date();d.setMonth(d.getMonth()-5+i);return d.toISOString().slice(0,7);});
   const mL=[],mC=[],mF=[],mE=[];
   last6.forEach(m=>{
     const recs=allRecords.filter(r=>r.date&&r.date.startsWith(m));
@@ -1083,8 +1401,7 @@ function renderDash(){
 
 // ===== DETAIL =====
 function showDetail(key){
-  const r=allRecords.find(x=>x._key===key);
-  if(!r) return;
+  const r=allRecords.find(x=>x._key===key); if(!r) return;
   detailRec=r;
   document.getElementById('detailContent').innerHTML=`
     <p style="font-size:12px;margin-bottom:12px;color:#9e9b93">Source: <b>${r._source==='firebase'?'🔥 Firebase':'Local'}</b></p>
@@ -1106,6 +1423,7 @@ function showDetail(key){
       <div class="di"><div class="dl">Saved By</div><div class="dv">${r.user||'-'}</div></div>
       <div class="di" style="grid-column:1/-1"><div class="dl">Note</div><div class="dv">${r.note||'-'}</div></div>
     </div>`;
+  document.getElementById('det-edit-btn').style.display=currentRole==='admin'?'':'none';
   document.getElementById('det-edit-btn').onclick=()=>editRecord(key);
   document.getElementById('detailModal').classList.add('open');
 }
@@ -1115,17 +1433,8 @@ function printSlip(){
   const r=detailRec; if(!r) return;
   const w=window.open('','_blank','width=580,height=680');
   w.document.write(`<html><head><title>Slip - ${r.uid}</title>
-    <style>body{font-family:sans-serif;padding:28px;max-width:480px;margin:0 auto}
-    h2{text-align:center;margin-bottom:4px;font-size:18px}
-    .sub{text-align:center;color:#666;font-size:12px;margin-bottom:18px}
-    table{width:100%;border-collapse:collapse}
-    td{padding:8px 11px;border-bottom:1px solid #eee;font-size:13px}
-    td:first-child{color:#666;width:44%}
-    .bal{font-weight:bold;font-size:15px;color:${r.balance<0?'#a32d2d':'#2d7a3a'}}
-    .ft{text-align:center;margin-top:18px;font-size:11px;color:#999}
-    @media print{button{display:none}}</style></head><body>
-    <h2>Wash Plant Management</h2>
-    <div class="sub">Record Slip — ${new Date().toLocaleDateString()}</div>
+    <style>body{font-family:sans-serif;padding:28px;max-width:480px;margin:0 auto}h2{text-align:center;margin-bottom:4px;font-size:18px}.sub{text-align:center;color:#666;font-size:12px;margin-bottom:18px}table{width:100%;border-collapse:collapse}td{padding:8px 11px;border-bottom:1px solid #eee;font-size:13px}td:first-child{color:#666;width:44%}.bal{font-weight:bold;font-size:15px;color:${r.balance<0?'#a32d2d':'#2d7a3a'}}.ft{text-align:center;margin-top:18px;font-size:11px;color:#999}@media print{button{display:none}}</style></head><body>
+    <h2>💧 Wash Plant Management</h2><div class="sub">Record Slip — ${new Date().toLocaleDateString()}</div>
     <table>
       <tr><td>Record ID</td><td><b>${r.uid||'-'}</b></td></tr>
       <tr><td>Date</td><td>${r.date||'-'}</td></tr>
@@ -1143,9 +1452,8 @@ function printSlip(){
       ${r.note?`<tr><td>Note</td><td>${r.note}</td></tr>`:''}
     </table>
     <div class="ft">By: ${r.user||'-'} | ${r.timestamp?new Date(r.timestamp).toLocaleString():'-'}</div>
-    <br><button onclick="window.print()">Print</button>
-    </body></html>`);
-  w.document.close(); setTimeout(()=>w.print(),400);
+    <br><button onclick="window.print()">Print</button></body></html>`);
+  w.document.close();setTimeout(()=>w.print(),400);
 }
 
 // ===== EDIT =====
@@ -1181,22 +1489,19 @@ async function updateRecord(){
   if(g('e-fwater')===''){ alert('Free Water is required.'); return; }
   const idx=allRecords.findIndex(x=>x._key===editingId); if(idx<0) return;
   const r=allRecords[idx];
-  r.date=g('e-date'); r.district=g('e-district'); r.city=g('e-city');
-  r.plant=g('e-plant'); r.shift=g('e-shift'); r.person=g('e-person');
-  r.cwater=+g('e-cwater')||0; r.fwater=+g('e-fwater')||0; r.dexp=+g('e-dexp')||0;
-  r.oexp=+g('e-oexp')||0; r.oexpd=g('e-oexpd'); r.ebill=+g('e-ebill')||0;
-  r.prent=+g('e-prent')||0; r.note=g('e-note');
+  r.date=g('e-date');r.district=g('e-district');r.city=g('e-city');
+  r.plant=g('e-plant');r.shift=g('e-shift');r.person=g('e-person');
+  r.cwater=+g('e-cwater')||0;r.fwater=+g('e-fwater')||0;r.dexp=+g('e-dexp')||0;
+  r.oexp=+g('e-oexp')||0;r.oexpd=g('e-oexpd');r.ebill=+g('e-ebill')||0;
+  r.prent=+g('e-prent')||0;r.note=g('e-note');
   r.balance=(+r.cwater)-(+r.fwater)-(+r.dexp)-(+r.oexp)-(+r.ebill)-(+r.prent);
-
-  if(r._source==='firebase' && window._FB_READY){
-    try{
-      const {_key,_source,...clean}=r;
-      await fbSet('records/'+r.uid, clean);
-    }catch(e){ showToast('Firebase update failed: '+e.message,'err'); }
+  if(r._source==='firebase'&&window._FB_READY){
+    try{ const {_key,_source,...clean}=r; await fbSet('records/'+r.uid,clean); }
+    catch(e){ showToast('Firebase update failed','err'); }
   } else if(r._source==='local'){
-    localStorage.setItem(editingId, JSON.stringify(r));
+    localStorage.setItem(editingId,JSON.stringify(r));
   }
-  closeM('editModal'); renderTable(); updateStats(); renderRecent();
+  closeM('editModal');renderTable();updateStats();renderRecent();
   showGoodWork('Record updated ✓');
 }
 
@@ -1204,35 +1509,51 @@ async function updateRecord(){
 async function delRecord(key){
   if(!confirm('Delete this record?')) return;
   const r=allRecords.find(x=>x._key===key); if(!r) return;
-  if(r._source==='firebase' && window._FB_READY){
+  if(r._source==='firebase'&&window._FB_READY){
     try{ await fbRemove('records/'+r.uid); }
-    catch(e){ showToast('Firebase delete failed: '+e.message,'err'); return; }
+    catch(e){ showToast('Firebase delete failed','err'); return; }
   } else {
     localStorage.removeItem(key);
     allRecords=allRecords.filter(x=>x._key!==key);
     filteredRecords=filteredRecords.filter(x=>x._key!==key);
-    renderTable(); updateStats(); renderRecent();
+    renderTable();updateStats();renderRecent();
   }
   showToast('Record deleted','ok');
 }
 
-// ===== MODALS =====
 function closeM(id){ document.getElementById(id).classList.remove('open'); }
+function loadRecords(){ showToast('Refreshing...','ok'); fbSyncAll(); }
 
 // ===== PDF =====
-function openPdfModal(){ document.getElementById('pdfModal').classList.add('open'); }
-function exportPdf(){
+function openPdfModal(){
+  // Populate PDF filter dropdowns
+  const dists=[...new Set(allRecords.map(r=>r.district).filter(Boolean))];
+  const plants=[...new Set(allRecords.map(r=>r.plant).filter(Boolean))];
+  const persons=[...new Set(allRecords.map(r=>r.person).filter(Boolean))];
+  document.getElementById('pdf-district').innerHTML='<option value="">All Districts</option>'+dists.map(d=>`<option>${d}</option>`).join('');
+  document.getElementById('pdf-city').innerHTML='<option value="">All Cities</option>';
+  document.getElementById('pdf-plant').innerHTML='<option value="">All Plants</option>'+plants.map(p=>`<option>${p}</option>`).join('');
+  document.getElementById('pdf-person').innerHTML='<option value="">All Persons</option>'+persons.map(p=>`<option>${p}</option>`).join('');
+  document.getElementById('pdfModal').classList.add('open');
+}
+function generatePDF(){
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'landscape'});
   const fromD=document.getElementById('pdf-from').value;
   const toD=document.getElementById('pdf-to').value;
-  const plant=document.getElementById('pdf-plant').value.trim().toLowerCase();
+  const dist=document.getElementById('pdf-district').value.toLowerCase();
+  const city=document.getElementById('pdf-city').value.toLowerCase();
+  const plant=document.getElementById('pdf-plant').value.toLowerCase();
+  const person=document.getElementById('pdf-person').value.toLowerCase();
   let recs=[...allRecords];
   if(fromD) recs=recs.filter(r=>r.date>=fromD);
   if(toD) recs=recs.filter(r=>r.date<=toD);
+  if(dist) recs=recs.filter(r=>(r.district||'').toLowerCase().includes(dist));
+  if(city) recs=recs.filter(r=>(r.city||'').toLowerCase().includes(city));
   if(plant) recs=recs.filter(r=>(r.plant||'').toLowerCase().includes(plant));
-  doc.setFontSize(14); doc.text('Wash Plant Records',14,15);
-  doc.setFontSize(9); doc.text(`Generated: ${new Date().toLocaleString()} | Records: ${recs.length}`,14,22);
+  if(person) recs=recs.filter(r=>(r.person||'').toLowerCase().includes(person));
+  doc.setFontSize(14);doc.text('Wash Plant Records v7',14,15);
+  doc.setFontSize(9);doc.text(`Generated: ${new Date().toLocaleString()} | Records: ${recs.length}`,14,22);
   doc.autoTable({
     startY:26,
     head:[['ID','Date','District','City','Plant','Shift','Person','C.Water','F.Water','D.Exp','O.Exp','E.Bill','Rent','Balance']],
@@ -1240,15 +1561,15 @@ function exportPdf(){
     styles:{fontSize:7},headStyles:{fillColor:[26,58,92]},alternateRowStyles:{fillColor:[245,244,240]}
   });
   const total=recs.reduce((s,r)=>s+(+r.balance||0),0);
-  doc.setFontSize(9); doc.text(`Total Balance: Rs ${total.toLocaleString()}`,14,doc.lastAutoTable.finalY+8);
-  doc.save('WashPlant_Records.pdf');
+  doc.setFontSize(9);doc.text(`Total Balance: Rs ${total.toLocaleString()}`,14,doc.lastAutoTable.finalY+8);
+  doc.save('WashPlant_v7.pdf');
   closeM('pdfModal');
 }
 function exportCSV(){
   const h=['ID','Date','District','City','Plant','Shift','Person','Consume Water','Free Water','Daily Exp','Other Exp','E.Bill','Rent','Balance','Note','User','Timestamp'];
   const rows=allRecords.map(r=>[r.uid,r.date,r.district,r.city,r.plant,r.shift,r.person,r.cwater,r.fwater,r.dexp,r.oexp,r.ebill,r.prent,r.balance,r.note,r.user,r.timestamp].map(v=>`"${v||''}"`).join(','));
   const csv=[h.join(','),...rows].join('\n');
-  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='WashPlant.csv'; a.click();
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='WashPlant_v7.csv';a.click();
 }
 
 // ===== LIST MANAGER =====
@@ -1273,13 +1594,12 @@ function renderListMgr(){
               ${dist}<button class="btn btnsm btnr" style="padding:1px 6px;font-size:10px" onclick="removeDistrict('${dist}')">Remove</button>
             </div>
             ${(lists.city[dist]||[]).map((c,ci)=>`<div class="litem" style="margin-left:8px">${c}<button class="btn btnsm btnr" style="padding:1px 6px;font-size:11px" onclick="removeCity('${dist}',${ci})">×</button></div>`).join('')}
-            <div class="ladd" style="margin-left:8px;margin-top:4px"><input type="text" id="ci-inp-${dist}" placeholder="Add city"><button class="btn btnsm btng" onclick="addCity('${dist}')">+</button></div>
+            <div class="ladd" style="margin-left:8px;margin-top:4px"><input type="text" id="ci-inp-${dist.replace(/[^a-z0-9]/gi,'_')}" placeholder="Add city"><button class="btn btnsm btng" onclick="addCity('${dist}')">+</button></div>
           </div>`).join('')}
       </div>
       <div class="ladd" style="margin-top:8px"><input type="text" id="li-inp-newdist" placeholder="New district name"><button class="btn btnsm btng" onclick="addDistrict()">+ District</button></div>
     </div>`;
 }
-
 function addItem(k){
   const inp=document.getElementById('li-inp-'+k);
   const v=inp.value.trim(); if(!v) return;
@@ -1293,7 +1613,8 @@ function removeItem(k,i){
 function addDistrict(){
   const inp=document.getElementById('li-inp-newdist');
   const v=inp.value.trim(); if(!v) return;
-  if(!lists.city[v]){ lists.city[v]=[]; saveLists(); renderListMgr(); loadLists(); }
+  if(!lists.city) lists.city={};
+  if(!lists.city[v]){ lists.city[v]=[]; if(!lists.district.includes(v)) lists.district.push(v); saveLists(); renderListMgr(); loadLists(); }
   inp.value='';
 }
 function removeDistrict(dist){
@@ -1303,7 +1624,9 @@ function removeDistrict(dist){
   saveLists(); renderListMgr(); loadLists();
 }
 function addCity(dist){
-  const inp=document.getElementById('ci-inp-'+dist);
+  const safeDist=dist.replace(/[^a-z0-9]/gi,'_');
+  const inp=document.getElementById('ci-inp-'+safeDist);
+  if(!inp) return;
   const v=inp.value.trim(); if(!v) return;
   if(!lists.city[dist]) lists.city[dist]=[];
   if(!lists.city[dist].includes(v)){ lists.city[dist].push(v); saveLists(); renderListMgr(); loadLists(); }
@@ -1312,36 +1635,47 @@ function addCity(dist){
 function removeCity(dist,i){
   lists.city[dist].splice(i,1); saveLists(); renderListMgr(); loadLists();
 }
-
 async function saveLists(){
-  localStorage.setItem('wp_lists',JSON.stringify(lists));
+  // Do NOT save to localStorage — only sync to Firebase
   if(window._FB_READY){
     try{
       const usersPayload={};
-      Object.keys(USERS).forEach(u=>{ usersPayload[u]={pass:USERS[u].pass,role:USERS[u].role||'user'}; });
-      await fbSet('config', {...lists, users:usersPayload});
+      Object.keys(USERS).forEach(u=>{
+        usersPayload[u]={pass:USERS[u].pass,role:USERS[u].role||'user',perms:USERS[u].perms||null};
+      });
+      await fbSet('config',{...lists,users:usersPayload});
       showToast('Dropdowns saved & synced to Firebase ✓','ok');
-    }catch(e){ showToast('Local save OK, Firebase sync failed','err'); }
-  } else {
-    showToast('Dropdowns saved locally ✓','ok');
+    }catch(e){ showToast('Firebase sync failed','err'); }
   }
 }
 
-// ===== USERS =====
+// ===== USER MANAGEMENT =====
 function renderUsersMgr(){
   if(currentRole!=='admin') return;
-  document.getElementById('users-list').innerHTML=Object.keys(USERS).map(u=>`
-    <div class="user-row">
+  document.getElementById('users-list').innerHTML=Object.keys(USERS).map(u=>{
+    const userData=USERS[u];
+    const perms=userData.perms;
+    let permSummary='No permissions assigned';
+    if(userData.role==='admin') permSummary='Full access (Admin)';
+    else if(perms){
+      const dists=Object.keys(perms);
+      permSummary=dists.length>0?`${dists.length} district(s): ${dists.slice(0,3).join(', ')}${dists.length>3?'...':''}`:'No districts assigned';
+    }
+    return `<div class="user-row">
       <div class="user-info">
-        <div style="font-weight:600;margin-bottom:2px">${u} <span style="font-size:11px;padding:2px 7px;border-radius:10px;background:${USERS[u].role==='admin'?'#dbeafe':'#dcfce7'};color:${USERS[u].role==='admin'?'#1e40af':'#166534'}">${USERS[u].role||'user'}</span></div>
-        <div class="user-pass">Password: ${USERS[u].pass}</div>
+        <div style="font-weight:600;font-size:14px">${u} <span style="font-size:11px;padding:2px 7px;border-radius:10px;background:${userData.role==='admin'?'#dbeafe':'#dcfce7'};color:${userData.role==='admin'?'#1e40af':'#166534'}">${userData.role||'user'}</span></div>
+        <div class="user-pass">Password: ${userData.pass}</div>
+        <div class="user-perms">${permSummary}</div>
       </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <button class="btn btnsm btnbl" onclick="editUserPrompt('${u}')">Edit</button>
-        ${u!=='admin'?`<button class="btn btnsm btnr" onclick="delUser('${u}')">Delete</button>`:''}
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <button class="btn btnsm btnbl" onclick="openPermModal('${u}')">🔐 Permissions</button>
+        <button class="btn btnsm btno" onclick="editUserPrompt('${u}')">✏️ Edit</button>
+        ${u!=='admin'?`<button class="btn btnsm btnr" onclick="delUser('${u}')">🗑️</button>`:''}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
+
 function editUserPrompt(u){
   const newPass=prompt(`New password for "${u}" (leave blank to keep):`, USERS[u].pass);
   if(newPass===null) return;
@@ -1349,7 +1683,6 @@ function editUserPrompt(u){
   const newRole=prompt(`Role for "${u}" (admin/user):`, USERS[u].role||'user');
   if(newRole===null) return;
   if(newRole==='admin'||newRole==='user') USERS[u].role=newRole;
-  localStorage.setItem('wp_users',JSON.stringify(USERS));
   renderUsersMgr();
   fbSyncUsers();
 }
@@ -1357,18 +1690,18 @@ function addUser(){
   const u=document.getElementById('add-uname').value.trim();
   const p=document.getElementById('add-upass').value.trim();
   const r=document.getElementById('add-urole').value||'user';
-  if(!u||!p){ alert('Username and password are required.'); return; }
+  if(!u||!p){ alert('Username and password required.'); return; }
   if(USERS[u]){ alert('User already exists.'); return; }
-  USERS[u]={pass:p,role:r};
-  localStorage.setItem('wp_users',JSON.stringify(USERS));
-  document.getElementById('add-uname').value=''; document.getElementById('add-upass').value='';
+  USERS[u]={pass:p,role:r,perms:null};
+  document.getElementById('add-uname').value='';
+  document.getElementById('add-upass').value='';
   renderUsersMgr();
   fbSyncUsers();
   showToast('User "'+u+'" added','ok');
 }
 function delUser(u){
   if(!confirm(`Delete user "${u}"?`)) return;
-  delete USERS[u]; localStorage.setItem('wp_users',JSON.stringify(USERS));
+  delete USERS[u];
   renderUsersMgr();
   fbSyncUsers();
   showToast('User "'+u+'" deleted','ok');
@@ -1377,10 +1710,116 @@ async function fbSyncUsers(){
   if(!window._FB_READY) return;
   try{
     const payload={};
-    Object.keys(USERS).forEach(u=>{ payload[u]={pass:USERS[u].pass,role:USERS[u].role||'user'}; });
-    await fbSet('config/users', payload);
+    Object.keys(USERS).forEach(u=>{
+      payload[u]={pass:USERS[u].pass,role:USERS[u].role||'user',perms:USERS[u].perms||null};
+    });
+    await fbSet('config/users',payload);
+    localStorage.setItem('wp_users',JSON.stringify(USERS));
     showToast('Users synced to Firebase ✓','ok');
   }catch(e){ showToast('Users sync error','err'); }
+}
+
+// ===== PERMISSION SYSTEM =====
+function openPermModal(u){
+  editingPermUser=u;
+  document.getElementById('perm-modal-title').textContent=`Permissions for: ${u}`;
+  renderPermPanel(u);
+  document.getElementById('permModal').classList.add('open');
+}
+
+function renderPermPanel(u){
+  const userPerms=USERS[u]?.perms||{};
+  const allDists=[...new Set(Object.keys(lists.city||{}).concat(lists.district||[]))];
+  let html='';
+
+  allDists.forEach(dist=>{
+    const distPerms=userPerms[dist];
+    const distChecked=distPerms!==undefined;
+    const distAll=distPerms==='all';
+    const cities=lists.city[dist]||[];
+
+    html+=`<div class="perm-district">
+      <div class="perm-dist-header">
+        <input type="checkbox" class="pchk" id="pd-${dist}" ${distChecked?'checked':''} onchange="toggleDistPerm('${dist}',this.checked)">
+        <label for="pd-${dist}" style="flex:1;cursor:pointer;font-weight:600">${dist}</label>
+        ${distChecked?`<label style="font-size:11px;cursor:pointer"><input type="checkbox" class="pchk" id="pd-all-${dist}" ${distAll?'checked':''} onchange="toggleDistAll('${dist}',this.checked)" style="width:12px;height:12px"> All Cities</label>`:''}
+      </div>`;
+
+    if(distChecked&&!distAll&&cities.length){
+      html+=`<div class="perm-cities" id="perm-cities-${dist}">`;
+      cities.forEach(city=>{
+        const cityPerms=typeof distPerms==='object'?distPerms[city]:undefined;
+        const cityChecked=cityPerms!==undefined;
+        const cityAll=cityPerms==='all';
+        const plants=lists.plant||[];
+
+        html+=`<div class="perm-city-row">
+          <input type="checkbox" class="pchk" id="pc-${dist}-${city}" ${cityChecked?'checked':''} onchange="toggleCityPerm('${dist}','${city}',this.checked)">
+          <label for="pc-${dist}-${city}" style="cursor:pointer;flex:1">${city}</label>
+          ${cityChecked?`<label style="font-size:11px;cursor:pointer"><input type="checkbox" class="pchk" id="pc-all-${dist}-${city}" ${cityAll?'checked':''} onchange="toggleCityAll('${dist}','${city}',this.checked)" style="width:12px;height:12px"> All Plants</label>`:''}
+        </div>`;
+
+        if(cityChecked&&!cityAll&&plants.length){
+          html+=`<div class="perm-plants" id="perm-plants-${dist}-${city}">`;
+          plants.forEach(plant=>{
+            const plantChecked=Array.isArray(cityPerms)&&cityPerms.includes(plant);
+            html+=`<div class="perm-plant-row">
+              <input type="checkbox" class="pchk" id="pp-${dist}-${city}-${plant}" ${plantChecked?'checked':''}> ${plant}
+            </div>`;
+          });
+          html+=`</div>`;
+        }
+      });
+      html+=`</div>`;
+    }
+    html+=`</div>`;
+  });
+
+  document.getElementById('perm-panel-content').innerHTML=html||'<p style="color:#9e9b93;font-size:13px">No districts configured yet. Add districts in Settings first.</p>';
+}
+
+function toggleDistPerm(dist,checked){
+  editingPermUser&&renderPermPanel(editingPermUser); // re-render to show/hide cities
+  // State is read from DOM when saving
+}
+function toggleDistAll(dist,checked){ renderPermPanel(editingPermUser); }
+function toggleCityPerm(dist,city,checked){ renderPermPanel(editingPermUser); }
+function toggleCityAll(dist,city,checked){ renderPermPanel(editingPermUser); }
+
+function savePermissions(){
+  if(!editingPermUser) return;
+  const allDists=[...new Set(Object.keys(lists.city||{}).concat(lists.district||[]))];
+  const perms={};
+
+  allDists.forEach(dist=>{
+    const distChk=document.getElementById('pd-'+dist);
+    if(!distChk?.checked) return;
+    const distAllChk=document.getElementById('pd-all-'+dist);
+    if(distAllChk?.checked){ perms[dist]='all'; return; }
+
+    const cities=lists.city[dist]||[];
+    const cityPerms={};
+    cities.forEach(city=>{
+      const cityChk=document.getElementById(`pc-${dist}-${city}`);
+      if(!cityChk?.checked) return;
+      const cityAllChk=document.getElementById(`pc-all-${dist}-${city}`);
+      if(cityAllChk?.checked){ cityPerms[city]='all'; return; }
+
+      const plants=lists.plant||[];
+      const allowedPlants=plants.filter(plant=>{
+        const el=document.getElementById(`pp-${dist}-${city}-${plant}`);
+        return el?.checked;
+      });
+      if(allowedPlants.length) cityPerms[city]=allowedPlants;
+    });
+    if(Object.keys(cityPerms).length) perms[dist]=cityPerms;
+  });
+
+  USERS[editingPermUser].perms=Object.keys(perms).length?perms:null;
+  closeM('permModal');
+  renderUsersMgr();
+  fbSyncUsers();
+  showGoodWork(`Permissions saved for ${editingPermUser} ✓`);
 }
 
 // ===== CHANGE PASSWORD =====
@@ -1393,8 +1832,7 @@ function changePassword(){
   if(nw!==cf){ alert('New passwords do not match.'); return; }
   if(nw.length<3){ alert('Password must be at least 3 characters.'); return; }
   USERS[currentUser].pass=nw;
-  localStorage.setItem('wp_users',JSON.stringify(USERS));
-  document.getElementById('cp-old').value=''; document.getElementById('cp-new').value=''; document.getElementById('cp-conf').value='';
+  ['cp-old','cp-new','cp-conf'].forEach(id=>document.getElementById(id).value='');
   showGoodWork('Password updated on all devices ✓');
   fbSyncUsers();
 }
@@ -1412,53 +1850,21 @@ function changeUsername(){
   USERS[newName]=Object.assign({},USERS[currentUser]);
   delete USERS[currentUser];
   currentUser=newName;
-  localStorage.setItem('wp_users',JSON.stringify(USERS));
-  document.getElementById('p-name').textContent=newName;
-  document.getElementById('unm').textContent=newName;
-  document.getElementById('uav').textContent=newName[0].toUpperCase();
-  document.getElementById('p-av').textContent=newName[0].toUpperCase();
+  ['uav','mob-uav','p-av'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=newName[0].toUpperCase(); });
+  ['unm','mob-unm','p-name'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=newName; });
   document.getElementById('p-uname-edit-wrap').style.display='none';
   renderUsersMgr();
   fbSyncUsers();
   showGoodWork('Username updated ✓');
 }
 
+// ===== ONLINE =====
+window.addEventListener('online',()=>fbSyncAll());
+window.addEventListener('offline',()=>updateFbStatus(false));
+
 // ===== INIT =====
-loadLocalRecords();
-renderDash();
-// Wait for Firebase then sync
-if(window._FB_READY){ fbSyncAll(); }
-else { window.addEventListener('fb-ready', fbSyncAll); }
-</script>
-
-// Init theme/font
-(()=>{
-  document.body.setAttribute('data-theme', localStorage.getItem('wp_theme')||'light');
-  document.body.setAttribute('data-fontsize', localStorage.getItem('wp_fs')||'md');
-})();
-
-document.getElementById('lp').onkeydown = e=>{ if(e.key==='Enter') doLogin(); };
-document.addEventListener('click', e=>{ if(!e.target.closest('#qpanel')&&!e.target.closest('#custbtn')) document.getElementById('qpanel').classList.remove('open'); });
-
-// ===== GOOD WORK POPUP =====
-function showGoodWork(msg='Record saved successfully'){
-  const pop=document.getElementById('gwPopup');
-  const bd=document.getElementById('gwBackdrop');
-  document.getElementById('gwSub').textContent=msg;
-  pop.classList.add('show'); bd.classList.add('show');
-  setTimeout(()=>{ pop.classList.remove('show'); bd.classList.remove('show'); }, 1800);
-}
-
-// ===== SYNC TOAST =====
-let toastTimer=null;
-function showToast(msg,type='ok'){
-  const t=document.getElementById('syncToast');
-  t.textContent=msg;
-  t.className='sync-toast show '+(type==='ok'?'ok':'err');
-  if(toastTimer) clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
-}
-
+if(window._FB_READY){ /* loginSuccess will call fbSyncAll */ }
+else { window.addEventListener('fb-ready',()=>{}); }
 </script>
 </body>
 </html>
